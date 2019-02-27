@@ -74,7 +74,7 @@ do
 	f=$(($f+1))
 done
 gnuplot tmp/draw_summary.gnu >tmp/graphs.fig
-fig2dev -Lpdf tmp/graphs.fig tmp/graphs.pdf
+fig2dev -m5 -Lpng tmp/graphs.fig tmp/graphs.png
 convert tmp/graphs.png -trim -resize 500x400 tmp/graphsx.png
 extend_figure tmp/graphsx.png 
 convert -size 900x450 xc:white \
