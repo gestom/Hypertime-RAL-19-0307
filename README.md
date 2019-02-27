@@ -15,7 +15,7 @@ sudo apt install python-dev python-numpy python-pandas
 
 sudo apt install libalglib-dev transfig gnuplot imagemagick graphviz
 
-cd Hypertime-RAL-18-0278/door_state/src
+cd Hypertime-RAL-19-0307/door_state/src
 
 make
 
