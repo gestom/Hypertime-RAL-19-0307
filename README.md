@@ -1,19 +1,11 @@
 # Hypertime
 
-This repo contains code and dataset for the first experiment described in our submission to RAL-18-0259. The access to the additional experiments and data will be released after the first round of reviews or on request.
+This repo contains code and dataset for the first experiment described in our submission to RAL-19-0307. The access to the additional experiments and data will be released after the first round of reviews or on request. The software was tested on <b>Ubuntu 16.04</b> with <b>openCV2.7</b> and <b>Python</b>.
+
+To run it, 
 
 
-
-How to run that:
-for Ubuntu 16.04 (tested on fresh Lubuntu and Xubuntu 16.04.3):
-
-sudo apt install g++ make
-
-sudo apt install libopencv-dev python-opencv
-
-sudo apt install python-dev python-numpy python-pandas
-
-sudo apt install libalglib-dev transfig gnuplot imagemagick graphviz
+sudo apt install g++ make libopencv-dev python-opencv python-dev python-numpy python-pandas libalglib-dev transfig gnuplot imagemagick graphviz
 
 cd Hypertime-RAL-19-0307/door_state/src
 
@@ -50,4 +42,3 @@ cd ../../eval_scripts/
 ./summarize_results.sh greg_door_2016_min
 
 display summary.png
-
