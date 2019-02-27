@@ -61,8 +61,8 @@ cat tmp/best.txt|sort -k 6 >tmp/besta.txt
 mv tmp/besta.txt tmp/best.txt
 
 create_graph >a.txt 
-create_graph |dot -Tpdf >tmp/$d.pdf
-convert -density 200 tmp/$d.pdf -trim -bordercolor white tmp/$d.png 
+create_graph |dot -Tpng >tmp/$d.png
+convert tmp/$d.png -trim -bordercolor white tmp/$d.png 
 extend_figure tmp/$d.png
 cat tmp/best.txt |cut -f 2,4 -d ' '|tr ' ' _|sed s/$/.txt/|sed s/^/..\\/results\\/$d\\//
 f=0
@@ -75,10 +75,10 @@ do
 done
 gnuplot tmp/draw_summary.gnu >tmp/graphs.fig
 fig2dev -Lpdf tmp/graphs.fig tmp/graphs.pdf
-convert -density 200 tmp/graphs.pdf -trim -resize 500x400 tmp/graphs.png
-extend_figure tmp/graphs.png 
+convert tmp/graphs.png -trim -resize 500x400 tmp/graphsx.png
+extend_figure tmp/graphsx.png 
 convert -size 900x450 xc:white \
-	-draw 'Image src-over 25,50 500,400 'tmp/graphs.png'' \
+	-draw 'Image src-over 25,50 500,400 'tmp/graphsx.png'' \
 	-draw 'Image src-over 525,90 375,300 'tmp/$d.png'' \
 	-pointsize 24 \
 	-draw 'Text 140,30 "Performance of temporal models for door state prediction"' \
