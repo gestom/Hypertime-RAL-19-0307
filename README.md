@@ -1,6 +1,6 @@
 ## Experiments of RAL-19-307
 
-This repo contains code and dataset for the first experiment described in our submission to RAL-19-0307.  This repository allows to re-run the experiments described in the Section 4A. The access to the additional experiments and data will be released after the first round of reviews or on request.
+This repo contains code and dataset for the first experiment described in our submission to RAL-19-0307.  This repository allows to re-run the experiments described in the Section 4A. The access to the additional experiments and data will be released after the reviews will be concluded or on request.
 
 ### Prerequisities
 
