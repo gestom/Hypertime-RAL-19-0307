@@ -52,8 +52,8 @@ class CMises: public CTemporal
 		SSample positiveArray[1000000];
 		SSample negativeArray[1000000];
 		int negatives,positives;
-		EM* modelPositive;
-		EM* modelNegative;
+		Ptr<EM> modelPositive;
+		Ptr<EM> modelNegative;
 };
 
 #endif

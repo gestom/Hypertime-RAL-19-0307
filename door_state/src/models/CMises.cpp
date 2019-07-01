@@ -13,7 +13,8 @@ CMises::CMises(int id)
 //		sample.xy[i] = sample.xx[i] = sample.yy[i] = 0;
 //	}
 	type = TT_MISES;
-	modelPositive = modelNegative = NULL;
+	modelPositive.release();
+	modelNegative.release();
 }
 
 void CMises::init(int iMaxPeriod,int elements,int numActivities)
@@ -44,32 +45,49 @@ int CMises::add(uint32_t time,float state)
 void CMises::update(int modelOrder,unsigned int* times,float* signal,int length)
 {
 	if (order != modelOrder){
-		delete modelPositive;
-		delete modelNegative;
-		modelPositive = modelNegative = NULL;
+		modelPositive.release();
+		modelNegative.release();
+
 		order = modelOrder;
 	}
-	if (modelPositive == NULL) modelPositive = new EM(order,EM::COV_MAT_DIAGONAL,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
-	if (modelNegative == NULL) modelNegative = new EM(order,EM::COV_MAT_DIAGONAL,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
-	Mat samplesPositive(positives,5,CV_32FC1);
-	Mat samplesNegative(negatives,5,CV_32FC1);
+
+	if (modelPositive.empty()) {
+		modelPositive = EM::create();
+		modelPositive->setClustersNumber(order);
+		modelPositive->setCovarianceMatrixType(EM::COV_MAT_DIAGONAL);
+		modelPositive->setTermCriteria(TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+	}
+
+	if (modelNegative.empty()) {
+		modelNegative = EM::create();
+		modelNegative->setClustersNumber(order);
+		modelNegative->setCovarianceMatrixType(EM::COV_MAT_DIAGONAL);
+		modelNegative->setTermCriteria(TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+	}
+
+	//if (modelPositive == NULL) modelPositive = new EM(order,EM::COV_MAT_DIAGONAL,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+	//if (modelNegative == NULL) modelNegative = new EM(order,EM::COV_MAT_DIAGONAL,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+	Mat samplesPositive(positives,4,CV_32FC1);
+	Mat responsesPositive(positives,1,CV_32FC1);
+	Mat samplesNegative(negatives,4,CV_32FC1);
+	Mat responsesNegative(negatives,1,CV_32FC1);
 	for (int i = 0;i<positives;i++){
 		samplesPositive.at<float>(i,0)=cos((float)positiveArray[i].t/86400*2*M_PI);
 		samplesPositive.at<float>(i,1)=sin((float)positiveArray[i].t/86400*2*M_PI);
 		samplesPositive.at<float>(i,2)=cos((float)positiveArray[i].t/7/86400*2*M_PI);
 		samplesPositive.at<float>(i,3)=sin((float)positiveArray[i].t/7/86400*2*M_PI);
-		samplesPositive.at<float>(i,4)=positiveArray[i].x;
+		responsesPositive.at<float>(i,0)=positiveArray[i].x;
 	}
-	if (positives > 5) modelPositive->train(samplesPositive);
+	if (positives > 5) modelPositive->train(samplesPositive, ROW_SAMPLE, responsesPositive); //This might be wrong.
 	
 	for (int i = 0;i<negatives;i++){
 		samplesNegative.at<float>(i,0)=cos((float)negativeArray[i].t/86400*2*M_PI);
 		samplesNegative.at<float>(i,1)=sin((float)negativeArray[i].t/86400*2*M_PI);
 		samplesNegative.at<float>(i,2)=cos((float)negativeArray[i].t/7/86400*2*M_PI);
 		samplesNegative.at<float>(i,3)=sin((float)negativeArray[i].t/7/86400*2*M_PI);
-		samplesNegative.at<float>(i,4)=negativeArray[i].x;
+		responsesNegative.at<float>(i,0)=negativeArray[i].x;
 	}
-	if (negatives > 5)modelNegative->train(samplesNegative);
+	if (negatives > 5)modelNegative->train(samplesNegative, ROW_SAMPLE, responsesNegative); //This might be wrong.
 }
 
 float CMises::estimate(uint32_t t)
@@ -82,9 +100,9 @@ float CMises::estimate(uint32_t t)
 		sample.at<float>(0,3)=sin((float)t/7/86400*2*M_PI);
 		sample.at<float>(0,4)=1;
 		Mat probs(1,2,CV_32FC1);
-		Vec2f a = modelPositive->predict(sample, probs);
+		Vec2f a = modelPositive->predict2(sample, probs);
 		sample.at<float>(0,4)=0;
-		Vec2f b = modelNegative->predict(sample, probs);
+		Vec2f b = modelNegative->predict2(sample, probs);
 		//return exp(b(0));
 		//printf("Positive %f\n",exp(a(0)));
 		//std::cout << a << std::endl;
