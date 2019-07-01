@@ -14,7 +14,7 @@ void CTimeNone::init(int iMaxPeriod,int elements,int numClasses)
 {
 	maxPeriod = iMaxPeriod;
 	numElements = 1;
-	estimation = 1.0/numClasses; 
+	estimation = 0; 
 }
 
 CTimeNone::~CTimeNone()
@@ -41,12 +41,12 @@ void CTimeNone::print(bool verbose)
 
 float CTimeNone::estimate(uint32_t time)
 {
-	return 0;//estimation;
+	return 0.0;
 }
 
 float CTimeNone::predict(uint32_t time)
 {
-	return 0;//estimation;
+	return 0.0;
 	return estimation;
 }
 int CTimeNone::save(const char* name,bool lossy)

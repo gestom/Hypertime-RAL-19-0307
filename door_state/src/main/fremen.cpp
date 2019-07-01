@@ -7,13 +7,13 @@
 
 CTemporal *temporalModel;
 int trainingTimes[MAX_SIGNAL_LENGTH];
-unsigned char trainingStates[MAX_SIGNAL_LENGTH];
+float trainingStates[MAX_SIGNAL_LENGTH];
 int testingTime;
 float predictions[MAX_SIGNAL_LENGTH];
 
 int testingLength = 0;
 int trainingLength = 0;
-int dummyState = 0;
+float dummyState = 0;
 int dummyTime = 0;
 
 int main(int argc,char *argv[])
@@ -22,13 +22,13 @@ int main(int argc,char *argv[])
 	FILE* file=fopen(argv[1],"r");
 	while (feof(file)==0)
 	{
-		fscanf(file,"%i %i\n",&dummyTime,&dummyState);
+		fscanf(file,"%i %f\n",&dummyTime,&dummyState);
 		trainingTimes[trainingLength] = dummyTime;
 		trainingStates[trainingLength] = dummyState;
 		trainingLength++;
+		//printf("READ %i %i %f %i\n",file,trainingLength,dummyTime,dummyState);	
 	}
 	fclose(file);
-
 	/*traning model*/
 	temporalModel = spawnTemporalModel(argv[3],60*60*24*7,atoi(argv[4]),1);
 
@@ -51,11 +51,14 @@ int main(int argc,char *argv[])
 		
 	/*read testing timestamps and make predictions*/
 	file=fopen(argv[2],"r");
+	FILE *file2=fopen("debug.txt","w");
 	while (feof(file)==0){
 		fscanf(file,"%i\n",&testingTime);
 		predictions[testingLength++] = temporalModel->predict(testingTime);
+		//fprintf(file2,"%i %.3f\n",testingTime,temporalModel->predict(testingTime));
 	}
 	fclose(file);
+	fclose(file2);
 
 	file=fopen("predictions.txt","w");
 	for (int i =0;i<testingLength;i++) fprintf(file,"%.3f\n",predictions[i]);

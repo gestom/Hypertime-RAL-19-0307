@@ -4,6 +4,7 @@
 #include <opencv2/ml/ml.hpp>
 
 using namespace cv;
+using namespace ml;
 
 #include <stdio.h>
 #include <iostream>
@@ -52,10 +53,7 @@ class CHyperTime: public CTemporal
 		
 		SHyperTimeSample sampleArray[1000000];
 		int numSamples;
-		int positives;
-		int negatives;
-		EM* modelPositive;
-		EM* modelNegative;
+		Ptr<EM> hyperModel;
 		int spaceDimension;
 		int timeDimension;
 		int covarianceType;
@@ -63,6 +61,7 @@ class CHyperTime: public CTemporal
 		float errors[100];
 		float corrective;
 		int maxTimeDimension;
+		float integral;
 };
 
 #endif

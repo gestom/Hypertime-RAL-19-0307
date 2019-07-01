@@ -73,7 +73,7 @@ float CTimeHist::estimate(uint32_t time)
 	int index = ((time%maxPeriod)*numElements/maxPeriod)%numElements;
 	float estimate = 1.0/numModels;
 	if (measurementsHistogram[index] > 0) estimate = storedHistogram[index]/measurementsHistogram[index];
-	float saturation = 0.001;
+	float saturation = 0.000;
 	if (estimate > 1.0-saturation) estimate =  1.0-saturation;
 	if (estimate < 0.0+saturation) estimate =  0.0+saturation;
 	return estimate;
@@ -82,7 +82,7 @@ float CTimeHist::estimate(uint32_t time)
 float CTimeHist::predict(uint32_t time)
 {
 	float estimate = predictHistogram[((time%maxPeriod)*numElements/maxPeriod)%numElements];
-	float saturation = 0.001;
+	float saturation = 0.000;
 	if (estimate > 1.0-saturation) estimate =  1.0-saturation;
 	if (estimate < 0.0+saturation) estimate =  0.0+saturation;
 	return estimate;

@@ -27,8 +27,8 @@ int main(int argc, char **argv)
         x.setcontent(numData,xA);	
 	alglib::studentttest1(x,numData,0,both,left,right);
 	//printf("%.3lf %.3lf %.3lf\n",left,right,both);
-	if (right < 0.05) printf("First value is higher (p(higher)=%.3f)\n",1-right);
-	else if (left < 0.05) printf("First value is smaller (p(smaller)=%.3f)\n",1-left);
+	if (right < 0.25) printf("First value is higher (p(higher)=%.3f)\n",1-right);
+	else if (left < 0.25) printf("First value is smaller (p(smaller)=%.3f)\n",1-left);
 	else printf("First value is similar (p(similar)=%.3f)\n",both);
 	return 0;
 }

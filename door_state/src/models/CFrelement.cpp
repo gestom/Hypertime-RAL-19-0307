@@ -80,10 +80,12 @@ void CFrelement::update(int modelOrder,unsigned int* times,float* signal,int len
 	float re,im;
 	//int duration = lastTime - firstTime;
 	predictGain = storedGain;
+	float balanceCoef = 1;
+	if (modelOrder > 10) balanceCoef = 0;
 	for (int i = 0;i<numElements;i++)
 	{
-		re = storedFrelements[i].realStates-storedGain*storedFrelements[i].realBalance;
-		im = storedFrelements[i].imagStates-storedGain*storedFrelements[i].imagBalance;
+		re = storedFrelements[i].realStates-balanceCoef*storedGain*storedFrelements[i].realBalance;
+		im = storedFrelements[i].imagStates-balanceCoef*storedGain*storedFrelements[i].imagBalance;
 		//if (1.5*storedFrelements[i].period <= duration && storedFrelements[i].period > shortestTime*2) storedFrelements[i].amplitude = sqrt(re*re+im*im)/measurements; else storedFrelements[i].amplitude = 0;
 		storedFrelements[i].amplitude = sqrt(re*re+im*im)/measurements;
 		if (storedFrelements[i].amplitude < FREMEN_AMPLITUDE_THRESHOLD) storedFrelements[i].amplitude = 0;
@@ -132,7 +134,7 @@ void CFrelement::print(bool verbose)
 
 float CFrelement::estimate(uint32_t time)
 {
-	float saturation = 0.01;
+	float saturation = 0.00;
 	float estimate =  predictGain;
 	for (int i = 0;i<order;i++) estimate+=2*predictFrelements[i].amplitude*cos(time/predictFrelements[i].period*2*M_PI-predictFrelements[i].phase);
 	if (estimate > 1.0-saturation) estimate =  1.0-saturation;
@@ -143,7 +145,7 @@ float CFrelement::estimate(uint32_t time)
 
 float CFrelement::predict(uint32_t time)
 {
-	float saturation = 0.01;
+	float saturation = 0.00;
 	float estimate =  predictGain;
 	for (int i = 0;i<order;i++) estimate+=2*predictFrelements[i].amplitude*cos(time/predictFrelements[i].period*2*M_PI-predictFrelements[i].phase);
 	if (estimate > 1.0-saturation) estimate =  1.0-saturation;
