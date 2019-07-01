@@ -1,3 +1,9 @@
+## This is branch under the developement
+
+rewriting the code to be compatible with Ubuntu 18.04
+
+git clone -b ubuntu18 --single-branch https://github.com/gestom/Hypertime-RAL-19-0307
+
 ## Experiments of RAL-19-307
 
 This repo contains code and dataset for the first experiment described in our submission to RAL-19-0307.  This repository allows to re-run the experiments described in the Section 4A. The access to the additional experiments and data will be released after the reviews will be concluded or on request.
