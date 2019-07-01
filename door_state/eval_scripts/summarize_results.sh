@@ -28,7 +28,7 @@ function create_graph
 			#echo -ne Comparing $m and $n' ';
 			if [ $(paste tmp/$m.txt tmp/$n.txt|tr \\t ' '|cut -f 1,3 -d ' '|./t-test|grep -c higher) == 1 ] 	#change fields 1,3 to 2,4 for absolute testing
 			then
-				echo \"$(grep $n tmp/best.txt|cut -d ' ' -f 2,4|sed s/' '/_/|sed s/\_0//)\" '->' \"$(grep $m tmp/best.txt|cut -d ' ' -f 2,4|sed s/' '/_/|sed s/\_0//)\" ;
+				echo \"$(grep $n tmp/best.txt|cut -d ' ' -f 2,4|sed s/' '/_/|sed s/\_0//)\" '->' \"$(grep $m tmp/best.txt|cut -d ' ' -f 2,4|sed s/' '/_/|sed s/\_0//)\";
 				e=1
 			fi
 		done
@@ -54,15 +54,15 @@ do
 			indmin=$o
 		fi
 	done
-	cat ../results/$d/$m\_$indmin.txt >tmp/$m.txt
+	cat ../results/$d/$m\_$indmin.txt |tail -n 3 >tmp/$m.txt
 	echo Model $m param $indmin has $errmin error.  >>tmp/best.txt
 done
 cat tmp/best.txt|sort -k 6 >tmp/besta.txt
 mv tmp/besta.txt tmp/best.txt
 
-create_graph >a.txt 
-create_graph |dot -Tpng >tmp/$d.png
-convert tmp/$d.png -trim -bordercolor white tmp/$d.png 
+create_graph >tmp/graph.dot 
+create_graph |dot -Tpdf >tmp/$d.pdf
+convert -density 200 tmp/$d.pdf -trim -bordercolor white tmp/$d.png 
 extend_figure tmp/$d.png
 cat tmp/best.txt |cut -f 2,4 -d ' '|tr ' ' _|sed s/$/.txt/|sed s/^/..\\/results\\/$d\\//
 f=0
@@ -74,14 +74,14 @@ do
 	f=$(($f+1))
 done
 gnuplot tmp/draw_summary.gnu >tmp/graphs.fig
-fig2dev -m5 -Lpng tmp/graphs.fig tmp/graphs.png
-convert tmp/graphs.png -trim -resize 500x400 tmp/graphsx.png
-extend_figure tmp/graphsx.png 
+fig2dev -Lpdf tmp/graphs.fig tmp/graphs.pdf
+convert -density 200 tmp/graphs.pdf -trim -resize 500x400 tmp/graphs.png
+extend_figure tmp/graphs.png 
 convert -size 900x450 xc:white \
-	-draw 'Image src-over 25,50 500,400 'tmp/graphsx.png'' \
+	-draw 'Image src-over 25,50 500,400 'tmp/graphs.png'' \
 	-draw 'Image src-over 525,90 375,300 'tmp/$d.png'' \
 	-pointsize 24 \
-	-draw 'Text 140,30 "Performance of temporal models for door state prediction"' \
+	-draw 'Text 130,30 "Performance of temporal models for robot velocity prediction"' \
 	-pointsize 18 \
 	-gravity North \
 	-draw 'Text 0,40 "Arrow A->B means that A performs statistically significantly better that B"' tmp/summary.png;

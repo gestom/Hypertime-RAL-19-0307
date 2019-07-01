@@ -183,7 +183,7 @@ float CPerGaM::estimate(uint32_t time)
 	for (int i = 0;i<signalLength-phaseShift;i++) probability[i+phaseShift] = signal[i]; 
 	for (int i=0;i<repeats;i++) memcpy(&signal[signalLength*i],probability,signalLength*sizeof(float));*/
 
-	float saturation = 0.01;
+	float saturation = 0.00;
 	if (probability > 1.0-saturation) probability =  1.0-saturation;
 	if (probability < 0.0+saturation) probability =  0.0+saturation;
 	return probability;
