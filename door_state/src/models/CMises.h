@@ -4,6 +4,7 @@
 #include <opencv2/ml/ml.hpp>
 
 using namespace cv;
+using namespace ml;
 
 #include <stdio.h>
 #include <iostream>
