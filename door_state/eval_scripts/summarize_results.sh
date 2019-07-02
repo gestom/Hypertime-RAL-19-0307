@@ -37,8 +37,14 @@ function create_graph
 	echo }
 }
 
-mkdir tmp
-rm tmp/best.txt
+if [ -d tmp ]; then
+	if [ -f tmp/best.txt ]; then
+		rm tmp/best.txt
+	fi
+else
+	mkdir tmp
+fi
+
 grep -v '#' ../src/models/test_models.txt|tr -d '!' >tmp/models.tmp
 for m in $(cut -f 1 -d ' ' tmp/models.tmp)
 do
