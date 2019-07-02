@@ -8,4 +8,4 @@ set key top horizontal
 set xtics ("Training" 0);
 set style fill transparent solid 1.0 noborder;
 set boxwidth XXX 
-plot [-0.5:0.5] [0:0.2]\
+plot [:] [0:]\
