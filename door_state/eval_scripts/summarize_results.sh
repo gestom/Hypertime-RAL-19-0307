@@ -68,7 +68,8 @@ mv tmp/besta.txt tmp/best.txt
 
 create_graph >tmp/graph.dot 
 create_graph |dot -Tpdf >tmp/$d.pdf
-convert -density 200 tmp/$d.pdf -trim -bordercolor white tmp/$d.png 
+pdftoppm tmp/$d.pdf tmp/$d -png -r 200
+convert tmp/$d-1.png -trim -bordercolor white tmp/$d.png
 extend_figure tmp/$d.png
 cat tmp/best.txt |cut -f 2,4 -d ' '|tr ' ' _|sed s/$/.txt/|sed s/^/..\\/results\\/$d\\//
 f=0
@@ -79,9 +80,11 @@ do
 	echo \'$(grep $i tmp/best.txt |cut -f 2,4 -d ' '|tr ' ' _|sed s/$/.txt/|sed s/^/..\\/results\\/$d\\//)\' 'using ($0+XXX):($1*100) with boxes title' \'$i\',\\|sed s/XXX/\($f-$n*0.5+1\)\\/$n\.0/ >>tmp/draw_summary.gnu;   #modify for another error measure
 	f=$(($f+1))
 done
+
 gnuplot tmp/draw_summary.gnu >tmp/graphs.fig
 fig2dev -Lpdf tmp/graphs.fig tmp/graphs.pdf
-convert -density 200 tmp/graphs.pdf -trim -resize 500x400 tmp/graphs.png
+pdftoppm tmp/graphs.pdf tmp/graphs -png -r 200
+convert tmp/graphs-1.png -trim -resize 500x400 tmp/graphs.png
 extend_figure tmp/graphs.png 
 convert -size 900x450 xc:white \
 	-draw 'Image src-over 25,50 500,400 'tmp/graphs.png'' \
