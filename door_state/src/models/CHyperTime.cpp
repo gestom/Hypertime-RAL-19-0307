@@ -31,7 +31,7 @@ int CHyperTime::add(uint32_t time,float state)
 	sampleArray[numSamples].v = state;
 	integral +=state;
 	numSamples++;
-	return 0; 
+	return 0;
 }
 
 /*required in incremental version*/
@@ -49,7 +49,7 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 	//if (hyperModel == NULL) hyperModel = new EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
 
 	Mat samples(0,spaceDimension+timeDimension,CV_32FC1);
-	
+
 	float vDummy = 0.5;
 	long int tDummy = 0.5;
 	for (int i = 0;i<numSamples;i++){
@@ -58,14 +58,14 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 	}
 	periods.clear();
 	bool stop = false;
-	do { 
+	do {
 		/*find the gaussian mixtures*/
 		if (numSamples <= order) break;
 		hyperModel->trainEM(samples);
 		Mat means = hyperModel->getMeans();
 		cout << means << endl;
 		printf("Model trained with %i clusters, %i dimensions, %i data\n",hyperModel->getClustersNumber(),timeDimension,numSamples);
-		
+
 		/*analyse model error for periodicities*/
 		CFrelement fremen(0);
 		float err = 0;
@@ -83,7 +83,7 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 		numEvaluation = numSamples;
 		for (int i = 0;i<numEvaluation;i++) integralMod+=estimate(sampleArray[i].t);
 		corrective = corrective*integral/integralMod;
-		
+
 		/*calculate evaluation error*/
 		for (int i = 0;i<numEvaluation;i++)
 		{
@@ -92,7 +92,7 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 		}
 		sumErr=sqrt(sumErr/numEvaluation);
 
-		/*retrieve dominant error period*/	
+		/*retrieve dominant error period*/
 		int maxOrder = 1;
 		fremen.update(timeDimension/2+1);//+10);
 		int period = fremen.predictFrelements[0].period;
@@ -115,7 +115,7 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 			timeDimension-=2;
 			load("model");
 			samples = samples.colRange(0, samples.cols-2);
-			if (order < maxOrder){ 
+			if (order < maxOrder){
 				delete hyperModel;
 				//hyperModel = new EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
 				hyperModel = EM::create();
@@ -166,24 +166,24 @@ float CHyperTime::estimate(uint32_t t)
 		for (float estim = 0;estim < 0.15;estim+=0.001){
 			/*form the sample*/
 			sample.at<float>(0,0)=estim;
-		
+
 			/*augment data sample with hypertime dimensions)*/
 			for (int i = 0;i<timeDimension/2;i++){
 				sample.at<float>(0,spaceDimension+2*i+0)=cos((float)t/periods[i]*2*M_PI);
 				sample.at<float>(0,spaceDimension+2*i+1)=sin((float)t/periods[i]*2*M_PI);
 			}
-			Mat probs(1,2,CV_32FC1);			
+			Mat probs(1,2,CV_32FC1);
 			Vec2f a = hyperModel->predict2(sample, probs);
 
 			/*determine the mean value of the distribution*/
 			meanSum += estim*(exp(a(0)));
-			corrSum += (exp(a(0)));	
+			corrSum += (exp(a(0)));
 
 			/*determine the distribution modus*/
 			if (maxVal < (exp(a(0))))
 			{
-				maxVal = exp(a(0)); 
-				maxArg = estim; 
+				maxVal = exp(a(0));
+				maxArg = estim;
 			}
 		}
 
@@ -199,14 +199,14 @@ void CHyperTime::print(bool all)
 {
 	/*Mat meansPositive = hyperModel->get<Mat>("means");
 	std::cout << meansPositive << std::endl;
-	std::cout << meansNegative << std::endl;	
-	//std::cout << periods << std::endl;	
+	std::cout << meansNegative << std::endl;
+	//std::cout << periods << std::endl;
 	printf("%i %i\n",order,timeDimension);	*/
 }
 
 float CHyperTime::predict(uint32_t time)
 {
-	return estimate(time);	
+	return estimate(time);
 }
 
 int CHyperTime::save(const char* name,bool lossy)
@@ -221,7 +221,7 @@ int CHyperTime::save(const char* name,bool lossy)
 	fsp << "numSamples" << numSamples;
 	fsp << "corrective" << corrective;
 	cvStartWriteStruct(*fsp, "StatModel", CV_NODE_MAP);
-	if (hyperModel->isTrained()) hyperModel->write(fsp); 
+	if (hyperModel->isTrained()) hyperModel->write(fsp);
 	cvEndWriteStruct(*fsp);
 	fsp.release();
 
@@ -242,7 +242,10 @@ int CHyperTime::load(const char* name)
 
 	FileNode fn = fs["StatModel"];
 	timeDimension = periods.size()*2;
-	hyperModel->read(fn); 
+	if (hyperModel.empty()) {
+		hyperModel = EM::create();
+	}
+	hyperModel->read(fn);
 	fs.release();
 
 	return 0;
@@ -274,12 +277,12 @@ int CHyperTime::exportToArray(double* array,int maxLen)
 	if (hyperModel->isTrained()){
 		FILE*  file = fopen("hypertime.tmpneg","r");
 		int len = fread(&array[5],1,maxLen,file);
-		fclose(file);	
+		fclose(file);
 		array[1] = len;
 		file = fopen("hypertime.tmppos","r");
 		len = fread(&array[len+5],1,maxLen,file);
 		array[2] = len;
-		fclose(file);	
+		fclose(file);
 		return array[1]+array[2]+5;
 	}else{
 		array[1] = 0;
