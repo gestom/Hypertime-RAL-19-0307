@@ -337,8 +337,12 @@ int CPythonHyperTime::exportToArray(double* array,int maxLen)
     double length_of_array = temp_array[pos];
     array[pos++] = type;
     for(int i = pos; i<length_of_array; i++){
-        array[pos] = temp_array[pos++];
+        //std::cout << "pozice " << i << " vkladana hodnota " << temp_array[i] << std::endl;
+        array[i] = temp_array[i];
+        //std::cout << "pozice " << i << " vlozena hodnota " << array[i] << std::endl;
+        pos++;
     }
+
 
     Py_DECREF(numpyArray5);
     //Py_DECREF(pArray5);

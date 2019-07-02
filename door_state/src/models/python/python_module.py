@@ -174,12 +174,14 @@ def python_function_model_to_array(whole_model):
     start = end
     end = start + len_reshaped_k_4
     output_array[start: end] =  reshaped_k_4
+    #print(output_array)
     return output_array
 
 
 def python_function_array_to_model(input_array):
     """
     """
+    #print(input_array)
     number_of_parameters = 5
     len_shapes = []
     position = 0  # we do not need the zeroth position information
