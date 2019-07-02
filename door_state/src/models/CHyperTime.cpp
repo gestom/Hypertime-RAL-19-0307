@@ -235,28 +235,24 @@ float CHyperTime::predict(uint32_t time)
 
 int CHyperTime::save(const char* name,bool lossy)
 {
-	/*EM models have to be saved separately and adding a '.' to the filename causes the saving to fail*/
-	char filename[strlen(name)+5];
-
-	sprintf(filename,"%spos",name);
-	FileStorage fsp(filename, FileStorage::WRITE);
+	FileStorage fsp(name, FileStorage::WRITE);
 	fsp << "periods" << periods;
 	fsp << "order" << order;
 	fsp << "positives" << positives;
 	fsp << "negatives" << negatives;
 	fsp << "corrective" << corrective;
+	cvStartWriteStruct(*fsp, "ModelPositive", CV_NODE_MAP);
 	if (modelPositive->isTrained()){
 		modelPositive->write(fsp);
-	       	printf("saving positive\n");	
+		printf("saving positive\n");
 	}
-	fsp.release();
-
-	sprintf(filename,"%sneg",name);
-	fsp.open(filename, FileStorage::WRITE);
+	cvEndWriteStruct(*fsp);
+	cvStartWriteStruct(*fsp, "ModelNegative", CV_NODE_MAP);
 	if (modelNegative->isTrained()){
-		modelNegative->write(fsp); 
-	       	printf("saving positive\n");	
+		modelNegative->write(fsp);
+		printf("saving negative\n");
 	}
+	cvEndWriteStruct(*fsp);
 	fsp.release();
 
 	return 0;
@@ -264,22 +260,13 @@ int CHyperTime::save(const char* name,bool lossy)
 
 int CHyperTime::load(const char* name)
 {
-	/*EM models have to be saved separately and adding a '.' to the filename causes the saving to fail*/
-	char filename[strlen(name)+5];
-
-	sprintf(filename,"%spos",name);
-	FileStorage fs(filename, FileStorage::READ);
+	FileStorage fs(name, FileStorage::READ);
 	fs["periods"] >> periods;
 	fs["order"] >> order;
 	fs["positives"] >> positives;
 	fs["negatives"] >> negatives;
 	fs["corrective"] >> corrective;
 
-
-	//delete modelPositive;
-	//delete modelNegative;
-//	 modelPositive->release();
-//	 modelNegative->release();
 	modelPositive = EM::create();
 	modelNegative = EM::create();
 	modelPositive->setClustersNumber(order);
@@ -287,16 +274,11 @@ int CHyperTime::load(const char* name)
 	modelPositive->setCovarianceMatrixType(covarianceType);
 	modelNegative->setCovarianceMatrixType(covarianceType);
 
-	FileNode fn = fs["StatModel.EM"];
-	timeDimension = periods.size()*2;
-	modelPositive->read(fn); 
+	modelPositive->read(fs["ModelPositive"]);
+	modelNegative->read(fs["ModelNegative"]);
 	fs.release();
 
-	sprintf(filename,"%sneg",name);
-	fs.open(filename, FileStorage::READ);
-	fn = fs["StatModel.EM"];
-	modelNegative->read(fn); 
-	fs.release();
+	timeDimension = periods.size()*2;
 
 	return 0;
 }
