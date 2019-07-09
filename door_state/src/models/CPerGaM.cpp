@@ -22,8 +22,8 @@ void CPerGaM::init(int iMaxPeriod,int elements,int numActivities)
 {
 	maxPeriod = iMaxPeriod;
 	numElements = elements;
-	gaussian = (SPerGaM*) malloc(sizeof(SPerGaM)*numElements);	
-	storedHistogram = (float*) malloc(sizeof(float)*maxPeriod);	
+	gaussian = new SPerGaM[numElements];
+	storedHistogram = new float[maxPeriod];
 	for (int i=0;i<numElements;i++)
 	{
 		gaussian[i].mean = (i+0.5)*maxPeriod/elements;
@@ -36,7 +36,8 @@ void CPerGaM::init(int iMaxPeriod,int elements,int numActivities)
 
 CPerGaM::~CPerGaM()
 {
-	free(storedHistogram);
+	delete[] storedHistogram;
+	delete[] gaussian;
 }
 
 // adds new state observations at given times
@@ -197,15 +198,15 @@ float CPerGaM::predict(uint32_t time)
 void CPerGaM::print(bool verbose)
 {
 	std::cout << "Model: " << id << " Measurements: " << measurements << " ";
-	for (int i=0;i<numElements && verbose;i++) printf("GMM %i params %.3f %.3f %.3f",i,gaussian[i].mean,gaussian[i].sigma,gaussian[i].weight);
-	printf("\n");
+	for (int i=0;i<numElements && verbose;i++) std::cout << "GMM "<< i <<" params "<< gaussian[i].mean <<" "<< gaussian[i].sigma <<" "<< gaussian[i].weight;
+	std::cout << std::endl;
 }
 
 int CPerGaM::importFromArray(double* array,int len)
 {
 	int pos = 0;
 	type = (ETemporalType)array[pos++];
-	if (type != TT_PERGAM) fprintf(stderr,"Error loading the model, type mismatch.\n");
+	if (type != TT_PERGAM) std::cout << "Error loading the model, type mismatch." << std::endl;
 	numElements = array[pos++];  
 	id = array[pos++];
 	numBins = array[pos++];
@@ -220,7 +221,7 @@ int CPerGaM::importFromArray(double* array,int len)
 	}
 	for (int i = 0;i<numBins && pos < MAX_TEMPORAL_MODEL_SIZE;i++)storedHistogram[i]=array[pos++]; 
 
-	if (pos == MAX_TEMPORAL_MODEL_SIZE) fprintf(stdout,"Model was not properly saved before.\n");
+	if (pos == MAX_TEMPORAL_MODEL_SIZE) std::cout << "Model was not properly saved before." << std::endl;
 	return pos;
 
 }
@@ -243,7 +244,7 @@ int CPerGaM::exportToArray(double* array,int maxLen)
 	}
 	for (int i = 0;i<numBins && pos < MAX_TEMPORAL_MODEL_SIZE;i++)array[pos++] = storedHistogram[i];
 
-	if (pos == MAX_TEMPORAL_MODEL_SIZE) fprintf(stdout,"Could not save the model dur to its size\n");
+	if (pos == MAX_TEMPORAL_MODEL_SIZE) std::cout << "Could not save the model dur to its size" << std::endl;
 	return pos;
 }
 
@@ -265,17 +266,18 @@ int CPerGaM::load(const char* name)
 
 int CPerGaM::save(FILE* file,bool lossy)
 {
-	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
+	double* array = new double[MAX_TEMPORAL_MODEL_SIZE];
 	int len = exportToArray(array,MAX_TEMPORAL_MODEL_SIZE);
 	fwrite(array,sizeof(double),len,file);
+	delete[] array;
 	return 0;
 }
 
 int CPerGaM::load(FILE* file)
 {
-	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
+	double* array = new double [MAX_TEMPORAL_MODEL_SIZE];
 	int len = fread(array,sizeof(double),MAX_TEMPORAL_MODEL_SIZE,file);
 	importFromArray(array,len);
-	free(array);
+	delete [] array;
 	return 0;
 }

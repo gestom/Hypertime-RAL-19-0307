@@ -234,7 +234,7 @@ int CPythonHyperTime::save(const char* name,bool lossy)
 	FILE* file = fopen(name,"w");
 	double array[10000];
 	int len = exportToArray(array,10000);
-	printf("Saved model with %i\n",len);
+	std::cout << "Saved model with " << len << std::endl;
 	fwrite(array,sizeof(double),len,file);
 	fclose(file);
 	return 0;
@@ -269,10 +269,10 @@ int CPythonHyperTime::load(const char* name)
 {
 
 	FILE* file = fopen(name,"r");
-	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
+	double* array = new double[MAX_TEMPORAL_MODEL_SIZE];
 	int len = fread(array,sizeof(double),MAX_TEMPORAL_MODEL_SIZE,file);
 	importFromArray(array,len);
-	free(array);
+	delete[] array;
 	fclose(file);
 	return 0;
 
